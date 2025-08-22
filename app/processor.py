@@ -1,7 +1,6 @@
 import pymongo.synchronous.cursor
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import pandas as pd
-import nltk
 
 class Processor:
 
@@ -10,7 +9,7 @@ class Processor:
         self.Guns = None
 
     def load_guns_black_list(self):
-        with open('weapon_list.txt', 'r') as file:
+        with open('../data/weapon_list.txt', 'r') as file:
             all_lines = file.readlines()
         weapons = []
         for line in all_lines:
@@ -46,7 +45,7 @@ class Processor:
         return words_and_counters[0][0]
 
     def detect_the_compound(self, text):
-        nltk.download('vader_lexicon')
+        # nltk.download('vader_lexicon')
         compound = SentimentIntensityAnalyzer().polarity_scores(text)['compound']
         str_compound = self.stringing_the_score(compound)
         return str_compound
@@ -61,6 +60,7 @@ class Processor:
             return 'negative'
 
     def search_weapon(self, text):
+        text = text.split()
         sign = True
         i = 0
         weapon = ''

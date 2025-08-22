@@ -34,11 +34,16 @@ class Manager:
         self.DataFrame = self.DataFrame[['id', 'original_text', 'rarest_word', 'sentiment', 'weapons_detected']]
 
     def convert_to_json(self):
-        self.DataFrame = self.DataFrame.to_dict(orient='records')
-
+        # self.DataFrame = self.DataFrame.to_dict(orient='records')
+        lst = []
+        for row in range(len(self.DataFrame)):
+            lst.append(dict(self.DataFrame.loc[row]))
+        return lst
 
     def get_data(self):
-        return json.dumps(self.DataFrame, indent=4)
+        # result = self.convert_to_json()
+        # return json.dumps(result, indent=4)
+        return self.convert_to_json()
 
     def run(self):
         self.fetch()
