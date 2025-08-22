@@ -1,19 +1,36 @@
+import pymongo.synchronous.cursor
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import pandas as pd
+import nltk
 
 class Processor:
 
     def __init__(self):
         self.DataFrame = None
+        self.Guns = None
 
-    def load_to_dataframe(self, tweets):
+    def load_guns_black_list(self):
+        with open('weapon_list.txt', 'r') as file:
+            all_lines = file.readlines()
+        weapons = []
+        for line in all_lines:
+            weapons.append(line.replace('\n', ''))
+        self.Guns = weapons
+
+    def load_to_dataframe(self, tweets:pymongo.synchronous.cursor.Cursor):
         self.DataFrame = pd.DataFrame(list(tweets))
 
     def col_uncommon_word(self):
-        self.DataFrame['uncommon_word'] = self.DataFrame['Text'].apply(lambda text: self.count_words(text))
+        self.DataFrame['rarest_word'] = self.DataFrame['Text'].apply(lambda text: self.count_words(text))
 
     def col_compound(self):
-        self.DataFrame['compound'] = self.DataFrame['Text'].apply(lambda text: self.detect_the_compound(text))
+        self.DataFrame['sentiment'] = self.DataFrame['Text'].apply(lambda text: self.detect_the_compound(text))
+
+    def col_gun(self):
+        self.DataFrame['weapons_detected'] = self.DataFrame['Text'].apply(lambda text: self.search_weapon(text))
+
+    def id_col(self):
+        self.DataFrame['id'] = self.DataFrame['_id'].apply(lambda id: str(id))
 
     @staticmethod
     def count_words(words):
@@ -29,6 +46,7 @@ class Processor:
         return words_and_counters[0][0]
 
     def detect_the_compound(self, text):
+        nltk.download('vader_lexicon')
         compound = SentimentIntensityAnalyzer().polarity_scores(text)['compound']
         str_compound = self.stringing_the_score(compound)
         return str_compound
@@ -41,4 +59,15 @@ class Processor:
             return 'neutral'
         else:
             return 'negative'
+
+    def search_weapon(self, text):
+        sign = True
+        i = 0
+        weapon = ''
+        while sign and i < len(self.Guns):
+            if self.Guns[i] in text:
+                weapon = self.Guns[i]
+                sign = False
+            i += 1
+        return weapon
 

@@ -1,7 +1,6 @@
-import json
-
 from fetcher import Fetcher
 from processor import Processor
+import json
 
 class Manager:
 

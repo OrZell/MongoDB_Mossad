@@ -1,6 +1,5 @@
 from pymongo import MongoClient
 from dotenv import find_dotenv, load_dotenv
-import pandas as pd
 import os
 
 
@@ -28,6 +27,3 @@ class Fetcher:
 
     def fetch_all(self):
         return self.connection[self.Database][self.Collection].find()
-
-    def convert_to_dataframe(self, documents):
-        return pd.DataFrame(list(documents))
